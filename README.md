@@ -1,185 +1,241 @@
-Backend do projeto **imerscafe**, desenvolvido em **Python com FastAPI**.
+# ☕ imerscafe Backend
 
-O serviço concentra a lógica determinística do jogo, sendo responsável pelo processamento das rodadas, validação das ações e gerenciamento do estado oficial da aplicação.
+Backend of the **imerscafe** project, developed in **Go**.
 
-## Responsabilidades
+The service centralizes the deterministic game logic and is responsible for round processing, action validation, and management of the application's official state.
 
-O backend é responsável por:
+## Responsibilities
 
-- Executar as regras formais do jogo;
-- Validar hard skills;
-- Gerenciar o estado oficial da rodada;
-- Validar os dados recebidos;
-- Comparar os ingredientes selecionados com a receita esperada;
-- Calcular a pontuação;
-- Determinar o resultado oficial da rodada;
-- Consolidar os dados processados;
-- Orquestrar integrações necessárias ao processamento da rodada.
+The backend is responsible for:
+
+* Executing the formal game rules;
+* Validating hard skills;
+* Managing the official round state;
+* Validating incoming data;
+* Comparing selected ingredients with the expected recipe;
+* Calculating the score;
+* Determining the official round result;
+* Consolidating processed data;
+* Orchestrating integrations required for round processing.
 
 ## Stack
 
-- **Python 3.11+**
-- **FastAPI** — framework para construção da API;
-- **Pydantic** — validação e modelagem dos dados;
-- **Uvicorn** — servidor ASGI;
-- **Pytest** — testes automatizados.
+* **Go 1.22+** — backend programming language;
+* **net/http** — HTTP server and API layer;
+* **encoding/json** — JSON request and response serialization;
+* **Go Modules** — dependency management;
+* **Go testing** — automated testing using Go's standard testing package.
 
-## Estrutura
+## Structure
 
 ```text
 backend/
 │
-├── app/
-│   ├── main.py
+├── cmd/
+│   └── server/
+│       └── main.go
+│
+├── internal/
+│   ├── handler/
 │   │
-│   ├── api/
-│   │   └── routes/
+│   ├── domain/
 │   │
-│   ├── models/
+│   ├── service/
 │   │
-│   ├── schemas/
+│   ├── repository/
 │   │
-│   ├── services/
-│   │
-│   └── core/
+│   └── config/
 │
 ├── tests/
 │
-├── requirements.txt
+├── go.mod
+├── go.sum
 ├── .env.example
 └── README.md
-````
+```
 
-### `main.py`
+### `cmd/server/`
 
-Ponto de entrada da aplicação FastAPI.
+Application entry point.
 
-Responsável pela criação e configuração da aplicação e pelo registro das rotas.
+The `main.go` file is responsible for creating and configuring the application, loading configuration, initializing dependencies, and registering the API routes.
 
-### `api/`
+### `internal/handler/`
 
-Contém os endpoints e as rotas utilizadas para comunicação com o backend.
+Contains the HTTP handlers used for communication with the client.
 
-### `models/`
+Handlers are responsible for:
 
-Contém os modelos utilizados pela aplicação para representar os dados e entidades do domínio.
+* Receiving HTTP requests;
+* Reading request data;
+* Validating request structure;
+* Calling application services;
+* Returning HTTP responses.
 
-### `schemas/`
+### `internal/domain/`
 
-Contém os schemas Pydantic utilizados para validação dos dados de entrada e saída da API.
+Contains the domain models and deterministic game rules.
 
-### `services/`
+This layer represents the core concepts of the game, such as:
 
-Contém a lógica de negócio e o processamento das regras do jogo.
+* Rounds;
+* Recipes;
+* Ingredients;
+* Player actions;
+* Hard skills;
+* Scores;
+* Results.
 
-### `core/`
+The domain layer contains the rules that determine the official game result.
 
-Contém configurações e componentes centrais da aplicação.
+### `internal/service/`
 
-## Fluxo de processamento
+Contains the application's business logic and use cases.
 
-O processamento de uma rodada ocorre no backend:
+Responsible for:
+
+* Processing rounds;
+* Validating player actions;
+* Applying game rules;
+* Calculating scores;
+* Managing the official round state;
+* Returning the processed result.
+
+### `internal/repository/`
+
+Contains abstractions and implementations related to data persistence and external data sources.
+
+Repositories isolate the application and domain logic from infrastructure-specific implementations.
+
+### `internal/config/`
+
+Contains application configuration and environment-related settings.
+
+Configuration is kept separate from the business logic and infrastructure implementations.
+
+## Processing Flow
+
+Round processing takes place entirely in the backend:
 
 ```text
 Request
    │
    ▼
-FastAPI
+HTTP Handler
    │
    ▼
-Validação dos dados
+Request Validation
    │
    ▼
-Regras do jogo
+Business Rules
    │
-   ├── Validação da receita
-   ├── Validação dos ingredientes
-   ├── Cálculo da pontuação
-   └── Atualização da rodada
+   ├── Recipe validation
+   ├── Ingredient validation
+   ├── Hard skill validation
+   ├── Score calculation
+   └── Round state update
    │
    ▼
-Resultado oficial
+Official Result
    │
    ▼
 Response
 ```
 
-O resultado da rodada é determinado exclusivamente pelo backend.
+The round result is determined exclusively by the backend.
 
-## Execução
+The client does not determine the official score or game result.
 
-### Criar ambiente virtual
+## Execution
 
-```bash
-python3 -m venv .venv
-```
+### Requirements
 
-### Ativar ambiente virtual
+Make sure Go is installed and available in your environment.
 
-```bash
-source .venv/bin/activate
-```
-
-### Instalar dependências
+Check the installed version with:
 
 ```bash
-pip install -r requirements.txt
+go version
 ```
 
-### Executar a aplicação
+### Install Dependencies
+
+Download the project dependencies:
 
 ```bash
-uvicorn app.main:app --reload
+go mod download
 ```
 
-A API estará disponível em:
+### Run the Application
+
+```bash
+go run ./cmd/server
+```
+
+The API will be available at:
 
 ```text
-http://localhost:8000
+http://localhost:8080
 ```
 
-## Documentação da API
+## Build
 
-O FastAPI disponibiliza automaticamente a documentação interativa da API.
-
-### Swagger UI
-
-```text
-http://localhost:8000/docs
-```
-
-### ReDoc
-
-```text
-http://localhost:8000/redoc
-```
-
-## Testes
-
-Executar os testes com:
+To build the application:
 
 ```bash
-pytest
+go build -o bin/server ./cmd/server
 ```
 
-## Princípio do Backend
+Run the generated binary:
 
-O backend é a fonte de verdade para todas as regras determinísticas do jogo.
+```bash
+./bin/server
+```
+
+## API Documentation
+
+The API documentation depends on the documentation solution configured by the project.
+
+If an interactive API documentation tool is configured, it should be available through the corresponding application endpoint.
+
+## Tests
+
+Run the automated tests with:
+
+```bash
+go test ./...
+```
+
+To run tests with additional output:
+
+```bash
+go test -v ./...
+```
+
+To check test coverage:
+
+```bash
+go test ./... -cover
+```
+
+## Backend Principle
+
+The backend is the source of truth for all deterministic game rules.
 
 ```text
-Cliente
+Client
    │
-   │ Dados da ação
+   │ Player action data
    ▼
-FastAPI
+HTTP API
    │
-   │ Validação
+   │ Validation
    ▼
-Regras de negócio
+Business Rules
    │
-   │ Resultado determinístico
+   │ Deterministic result
    ▼
-Estado oficial da rodada
+Official Round State
 ```
-**O cliente fornece os dados da ação. O backend valida, processa e determina o resultado oficial.**
 
+**The client provides the action data. The backend validates, processes, and determines the official result.**
