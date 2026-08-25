@@ -12,7 +12,7 @@ const (
 	IngredientCinnamon     Ingredient = "CANELA"
 	IngredientSugar        Ingredient = "ACUCAR"
 	IngredientVanilla      Ingredient = "BAUNILHA"
-	IncredientCream        Ingredient = "CREME"
+	IngredientCream        Ingredient = "CREME"
 	IngredientWater        Ingredient = "AGUA"
 	IngredientIce          Ingredient = "GELO"
 )

@@ -1,0 +1,26 @@
+{
+  "prefix": "SPEC",
+  "testCommand": "npm test",
+  "conventionsPath": ".sdd/conventions.md",
+  "skillsPath": ".sdd/skills",
+  "ai": {
+    "provider": "copilot",
+    "permissionMode": "default",
+    "model": "gpt-5.3-codex",
+    "effort": "medium",
+    "tagSkillMappings": [],
+    "prePromptTemplate": "Implement {spec_file}. Update open tasks and its status to review after completion.",
+    "commitCommand": "git add -A && git commit -m \"{spec_id}: {title}\"",
+    "commitCommandEnabled": false,
+    "prCommand": "gh pr create --title \"feat: {title} ({spec_id})\" --body \"Implements {spec_id}\"",
+    "prCommandEnabled": false
+  },
+  "requirementsAi": {
+    "provider": "copilot",
+    "model": "gpt-5.3-codex",
+    "permissionMode": "default",
+    "effort": "medium",
+    "idealizePromptTemplate": "You are acting as a Senior Tech Lead and Software Architect. Follow the skill instructions in {file_prefix}.sdd/skills/idealize-requirements/SKILL.md. Analyze the feature description in {file_prefix}{feature_path} and produce a complete technical idealization. Create idealization.md in the same folder as the feature file, following the output format defined in the skill. The idealization must include: technical architecture, implementation plan with ordered phases, automated and manual acceptance criteria, technical risks with mitigations, concrete recommendations grounded in the existing codebase, and all open questions that must be resolved before implementation.",
+    "createSddCardsPromptTemplate": "Create new phases and SDDs in {file_prefix}{specs_folder}/ to fulfill the requirements in {file_prefix}{idealization_path} by using skills in {file_prefix}.sdd/skills/sdd-planner/SKILL.md. Add dependency from the other SDDs if needed."
+  }
+}
