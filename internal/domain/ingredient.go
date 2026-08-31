@@ -1,18 +1,21 @@
 package domain
 
-type Ingredient string
+type Ingredient struct {
+	ID   string
+	Name string
+}
 
-const (
-	IngredientCoffee       Ingredient = "CAFE"
-	IngredientMilk         Ingredient = "LEITE"
-	IngredientChocolate    Ingredient = "CHOCOLATE"
-	IngredientFoam         Ingredient = "ESPUMA"
-	IngredientWhippedCream Ingredient = "CHANTILLY"
-	IngredientCaramel      Ingredient = "CARAMELO"
-	IngredientCinnamon     Ingredient = "CANELA"
-	IngredientSugar        Ingredient = "ACUCAR"
-	IngredientVanilla      Ingredient = "BAUNILHA"
-	IngredientCream        Ingredient = "CREME"
-	IngredientWater        Ingredient = "AGUA"
-	IngredientIce          Ingredient = "GELO"
-)
+var DefaultIngredients = []Ingredient{
+	{ID: "1", Name: "CAFE"},
+	{ID: "2", Name: "LEITE"},
+	{ID: "3", Name: "CHOCOLATE"},
+	{ID: "4", Name: "ESPUMA"},
+	{ID: "5", Name: "CHANTILLY"},
+	{ID: "6", Name: "CARAMELO"},
+	{ID: "7", Name: "CANELA"},
+	{ID: "8", Name: "ACUCAR"},
+	{ID: "9", Name: "BAUNILHA"},
+	{ID: "10", Name: "CREME"},
+	{ID: "11", Name: "AGUA"},
+	{ID: "12", Name: "GELO"},
+}
