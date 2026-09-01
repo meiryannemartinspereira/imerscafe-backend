@@ -1,4 +1,4 @@
-module github.com/meiryannemartinspereira/imerscafe-backend
+module imerscafe-backend
 
 go 1.26.7
 
