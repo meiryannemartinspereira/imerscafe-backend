@@ -14,6 +14,7 @@ import (
 var (
 	ErrInvalidIngredientName = errors.New("nome do ingrediente é obrigatório")
 	ErrDuplicateIngredient   = errors.New("já existe um ingrediente com este nome")
+	ErrIngredientNotFound    = errors.New("ingrediente não encontrado")
 )
 
 type IngredientService struct {
@@ -24,39 +25,49 @@ func NewIngredientService(repo repository.IngredientRepository) *IngredientServi
 	return &IngredientService{repo: repo}
 }
 
-func (s *IngredientService) Create(ctx context.Context, name string) (*domain.Ingredient, error) {
+func (s *IngredientService) Create(ctx context.Context, name string) (domain.Ingredient, error) {
 	trimmedName := strings.TrimSpace(name)
 	if trimmedName == "" {
-		return nil, ErrInvalidIngredientName
+		return domain.Ingredient{}, ErrInvalidIngredientName
 	}
 
 	ingredients, err := s.repo.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return domain.Ingredient{}, err
 	}
 
 	for _, ing := range ingredients {
 		if strings.EqualFold(ing.Name, trimmedName) {
-			return nil, ErrDuplicateIngredient
+			return domain.Ingredient{}, ErrDuplicateIngredient
 		}
 	}
 
-	newIngredient := &domain.Ingredient{
+	newIngredient := domain.Ingredient{
 		ID:   uuid.New().String(),
 		Name: trimmedName,
 	}
 
 	if err := s.repo.Create(ctx, newIngredient); err != nil {
-		return nil, err
+		return domain.Ingredient{}, err
 	}
 
 	return newIngredient, nil
 }
 
-func (s *IngredientService) GetAll(ctx context.Context) ([]*domain.Ingredient, error) {
+func (s *IngredientService) GetAll(ctx context.Context) ([]domain.Ingredient, error) {
 	return s.repo.GetAll(ctx)
 }
 
-func (s *IngredientService) GetByID(ctx context.Context, id string) (*domain.Ingredient, error) {
-	return s.repo.GetByID(ctx, id)
+func (s *IngredientService) GetByID(ctx context.Context, id string) (domain.Ingredient, error) {
+	ingredient, err := s.repo.GetByID(ctx, id)
+
+	if errors.Is(err, repository.ErrIngredientNotFound) {
+		return domain.Ingredient{}, ErrIngredientNotFound
+	}
+
+	if err != nil {
+		return domain.Ingredient{}, err
+	}
+
+	return ingredient, nil
 }

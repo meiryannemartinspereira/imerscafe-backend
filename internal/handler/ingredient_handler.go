@@ -65,12 +65,12 @@ func (h *IngredientHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	ingredient, err := h.service.GetByID(r.Context(), id)
 	if err != nil {
-		http.Error(w, "erro interno no servidor", http.StatusInternalServerError)
-		return
-	}
+		if errors.Is(err, service.ErrIngredientNotFound) {
+			http.Error(w, "ingrediente não encontrado", http.StatusNotFound)
+			return
+		}
 
-	if ingredient == nil {
-		http.Error(w, "ingrediente não encontrado", http.StatusNotFound)
+		http.Error(w, "erro interno no servidor", http.StatusInternalServerError)
 		return
 	}
 
