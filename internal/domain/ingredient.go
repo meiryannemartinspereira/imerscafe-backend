@@ -1,8 +1,8 @@
 package domain
 
 type Ingredient struct {
-	ID   string
-	Name string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 var DefaultIngredients = []Ingredient{
