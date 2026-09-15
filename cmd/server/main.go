@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func setupRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -13,10 +13,16 @@ func main() {
 		fmt.Fprintln(w, "imerscafe backend is running")
 	})
 
+	return mux
+}
+
+func main() {
+	mux := setupRoutes()
 	fmt.Println("Server running on http://localhost:8080")
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		panic(err)
 	}
+
 }
