@@ -25,7 +25,7 @@ type createIngredientRequest struct {
 func (h *IngredientHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req createIngredientRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "payload inválido", http.StatusBadRequest)
+		http.Error(w, "invalid payload", http.StatusBadRequest)
 		return
 	}
 
@@ -35,7 +35,7 @@ func (h *IngredientHandler) Create(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		http.Error(w, "erro interno no servidor", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -47,7 +47,7 @@ func (h *IngredientHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *IngredientHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	ingredients, err := h.service.GetAll(r.Context())
 	if err != nil {
-		http.Error(w, "erro interno no servidor", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -59,18 +59,18 @@ func (h *IngredientHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 func (h *IngredientHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
-		http.Error(w, "ID é obrigatório", http.StatusBadRequest)
+		http.Error(w, "ID is required", http.StatusBadRequest)
 		return
 	}
 
 	ingredient, err := h.service.GetByID(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, service.ErrIngredientNotFound) {
-			http.Error(w, "ingrediente não encontrado", http.StatusNotFound)
+			http.Error(w, "ingredient not found", http.StatusNotFound)
 			return
 		}
 
-		http.Error(w, "erro interno no servidor", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 

@@ -38,4 +38,8 @@ func TestCreateIngredient(t *testing.T) {
 	if ingredient.Name != "Sugar" {
 		t.Errorf("expected ingredient name %q, got %q", "Sugar", ingredient.Name)
 	}
+
+	if ingredient.ID == "" {
+		t.Errorf("expected ingredient ID to be non-empty")
+	}
 }
