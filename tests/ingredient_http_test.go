@@ -43,3 +43,22 @@ func TestCreateIngredient(t *testing.T) {
 		t.Errorf("expected ingredient ID to be non-empty")
 	}
 }
+
+func TestGetAllIngredients(t *testing.T) {
+	mux := app.New()
+
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/ingredients",
+		nil,
+	)
+
+	recorder := httptest.NewRecorder()
+
+	mux.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("expected status code %d, got %d", http.StatusOK, recorder.Code)
+	}
+
+}
