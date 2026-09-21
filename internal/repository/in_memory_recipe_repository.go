@@ -41,3 +41,27 @@ func (r *InMemoryRecipeRepository) GetByID(ctx context.Context, id string) (doma
 
 	return recipe, nil
 }
+
+func (r *InMemoryRecipeRepository) Update(ctx context.Context, recipe domain.Recipe) error {
+	_, ok := r.recipes[recipe.ID]
+
+	if !ok {
+		return errors.New("recipe not found")
+	}
+
+	r.recipes[recipe.ID] = recipe
+
+	return nil
+}
+
+func (r *InMemoryRecipeRepository) Delete(ctx context.Context, id string) error {
+	_, ok := r.recipes[id]
+
+	if !ok {
+		return errors.New("recipe not found")
+	}
+
+	delete(r.recipes, id)
+
+	return nil
+}
