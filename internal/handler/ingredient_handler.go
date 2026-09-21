@@ -6,8 +6,6 @@ import (
 	"net/http"
 
 	"imerscafe-backend/internal/service"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type IngredientHandler struct {
@@ -57,7 +55,7 @@ func (h *IngredientHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *IngredientHandler) GetByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := r.PathValue("id")
 	if id == "" {
 		http.Error(w, "ID is required", http.StatusBadRequest)
 		return
