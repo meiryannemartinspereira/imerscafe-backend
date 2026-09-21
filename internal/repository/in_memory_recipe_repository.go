@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"imerscafe-backend/internal/domain"
 )
 
@@ -19,4 +20,24 @@ func (r *InMemoryRecipeRepository) Create(ctx context.Context, recipe domain.Rec
 	r.recipes[recipe.ID] = recipe
 
 	return nil
+}
+
+func (r *InMemoryRecipeRepository) GetAll(ctx context.Context) ([]domain.Recipe, error) {
+	recipes := []domain.Recipe{}
+
+	for _, recipe := range r.recipes {
+		recipes = append(recipes, recipe)
+	}
+
+	return recipes, nil
+}
+
+func (r *InMemoryRecipeRepository) GetByID(ctx context.Context, id string) (domain.Recipe, error) {
+	recipe, ok := r.recipes[id]
+
+	if !ok {
+		return domain.Recipe{}, errors.New("Recipe not found")
+	}
+
+	return recipe, nil
 }
