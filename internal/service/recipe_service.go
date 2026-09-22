@@ -99,7 +99,7 @@ func (s *recipeService) Create(ctx context.Context, input CreateRecipeInput) err
 		Ingredients: ingredients,
 	}
 
-	if err := s.recipeRepository.Create(ctx, &recipe); err != nil {
+	if err := s.recipeRepository.Create(ctx, recipe); err != nil {
 		return err
 	}
 
