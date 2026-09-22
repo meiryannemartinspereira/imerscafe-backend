@@ -24,6 +24,7 @@ func New() *http.ServeMux {
 	mux.HandleFunc("GET /ingredients/{id}", ingredientHandler.GetByID)
 
 	mux.HandleFunc("POST /recipes", recipeHandler.Create)
+	mux.HandleFunc("GET /recipes", recipeHandler.GetAll)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

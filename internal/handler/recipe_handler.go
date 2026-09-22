@@ -54,3 +54,15 @@ func (h *RecipeHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (h *RecipeHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	recipes, err := h.service.GetAll(r.Context())
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(recipes)
+}
