@@ -15,9 +15,15 @@ func New() *http.ServeMux {
 	ingredientService := service.NewIngredientService(ingredientRepository)
 	ingredientHandler := handler.NewIngredientHandler(ingredientService)
 
+	recipeRepository := repository.NewInMemoryRecipeRepository()
+	recipeService := service.NewRecipeService(recipeRepository, ingredientRepository)
+	recipeHandler := handler.NewRecipeHandler(recipeService)
+
 	mux.HandleFunc("POST /ingredients", ingredientHandler.Create)
 	mux.HandleFunc("GET /ingredients", ingredientHandler.GetAll)
 	mux.HandleFunc("GET /ingredients/{id}", ingredientHandler.GetByID)
+
+	mux.HandleFunc("POST /recipes", recipeHandler.Create)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
