@@ -27,6 +27,7 @@ func New() *http.ServeMux {
 	mux.HandleFunc("GET /recipes", recipeHandler.GetAll)
 	mux.HandleFunc("GET /recipes/{id}", recipeHandler.GetByID)
 	mux.HandleFunc("PATCH /recipes/{id}", recipeHandler.Update)
+	mux.HandleFunc("DELETE /recipes/{id}", recipeHandler.Delete)
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

@@ -120,3 +120,14 @@ func (h *RecipeHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *RecipeHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	if err := h.service.Delete(r.Context(), id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
