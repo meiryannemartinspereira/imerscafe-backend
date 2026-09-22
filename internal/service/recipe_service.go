@@ -88,3 +88,71 @@ func (s *recipeService) Create(ctx context.Context, recipe domain.Recipe) error 
 
 	return nil
 }
+
+func (s *recipeService) GetAll(ctx context.Context) ([]domain.Recipe, error) {
+	return s.recipeRepository.GetAll(ctx)
+}
+
+func (s *recipeService) GetByID(ctx context.Context, id string) (domain.Recipe, error) {
+	return s.recipeRepository.GetByID(ctx, id)
+}
+
+func (s *recipeService) Delete(ctx context.Context, id string) error {
+	return s.recipeRepository.Delete(ctx, id)
+}
+
+func (s *recipeService) Update(ctx context.Context, recipe domain.Recipe) error {
+	existingRecipe, err := s.recipeRepository.GetByID(ctx, recipe.ID)
+
+	if err != nil {
+		return err
+	}
+
+	if recipe.Name != "" {
+		recipe.Name = strings.TrimSpace(recipe.Name)
+
+		if recipe.Name == "" {
+			return ErrInvalidRecipeName
+		}
+
+		recipes, err := s.recipeRepository.GetAll(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		for _, existing := range recipes {
+			if existing.ID != recipe.ID && existing.Name == recipe.Name {
+				return ErrDuplicateRecipe
+			}
+		}
+
+		existingRecipe.Name = recipe.Name
+	}
+
+	if recipe.Ingredients != nil {
+		if len(recipe.Ingredients) == 0 {
+			return ErrRecipeWithoutIngredients
+		}
+
+		ingredients := make(map[string]bool)
+
+		for _, ingredient := range recipe.Ingredients {
+			if ingredients[ingredient.ID] {
+				return ErrDuplicateRecipeIngredient
+			}
+
+			_, err := s.ingredientRepository.GetByID(ctx, ingredient.ID)
+
+			if err != nil {
+				return err
+			}
+
+			ingredients[ingredient.ID] = true
+		}
+
+		existingRecipe.Ingredients = recipe.Ingredients
+	}
+
+	return s.recipeRepository.Update(ctx, existingRecipe)
+}
