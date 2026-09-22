@@ -66,3 +66,18 @@ func (h *RecipeHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(recipes)
 }
+
+func (h *RecipeHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	recipe, err := h.service.GetByID(r.Context(), id)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(recipe)
+}
