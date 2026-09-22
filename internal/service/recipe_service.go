@@ -18,11 +18,22 @@ var (
 	ErrDuplicateRecipeIngredient = errors.New("ingredient is duplicated in recipe")
 )
 
+type CreateRecipeInput struct {
+	Name          string
+	IngredientIDs []string
+}
+
+type UpdateRecipeInput struct {
+	ID            string
+	Name          *string
+	IngredientIDs *[]string
+}
+
 type RecipeService interface {
-	Create(ctx context.Context, recipe domain.Recipe) error
+	Create(ctx context.Context, input CreateRecipeInput) error
 	GetAll(ctx context.Context) ([]domain.Recipe, error)
 	GetByID(ctx context.Context, id string) (domain.Recipe, error)
-	Update(ctx context.Context, recipe domain.Recipe) error
+	Update(ctx context.Context, input UpdateRecipeInput) error
 	Delete(ctx context.Context, id string) error
 }
 
@@ -41,10 +52,10 @@ func NewRecipeService(
 	}
 }
 
-func (s *recipeService) Create(ctx context.Context, recipe domain.Recipe) error {
-	recipe.Name = strings.TrimSpace(recipe.Name)
+func (s *recipeService) Create(ctx context.Context, input CreateRecipeInput) error {
+	input.Name = strings.TrimSpace(input.Name)
 
-	if recipe.Name == "" {
+	if input.Name == "" {
 		return ErrInvalidRecipeName
 	}
 
@@ -55,32 +66,38 @@ func (s *recipeService) Create(ctx context.Context, recipe domain.Recipe) error 
 	}
 
 	for _, existingRecipe := range recipes {
-		if existingRecipe.Name == recipe.Name {
+		if existingRecipe.Name == input.Name {
 			return ErrDuplicateRecipe
 		}
 	}
 
-	if len(recipe.Ingredients) == 0 {
+	if len(input.IngredientIDs) == 0 {
 		return ErrRecipeWithoutIngredients
 	}
 
-	ingredients := make(map[string]bool)
+	ingredients := []domain.Ingredient{}
+	ingredientIDs := make(map[string]bool)
 
-	for _, ingredient := range recipe.Ingredients {
-		if ingredients[ingredient.ID] {
+	for _, ingredientID := range input.IngredientIDs {
+		if ingredientIDs[ingredientID] {
 			return ErrDuplicateRecipeIngredient
 		}
 
-		_, err := s.ingredientRepository.GetByID(ctx, ingredient.ID)
+		ingredient, err := s.ingredientRepository.GetByID(ctx, ingredientID)
 
 		if err != nil {
 			return err
 		}
 
-		ingredients[ingredient.ID] = true
+		ingredients = append(ingredients, ingredient)
+		ingredientIDs[ingredientID] = true
 	}
 
-	recipe.ID = uuid.New().String()
+	recipe := domain.Recipe{
+		ID:          uuid.New().String(),
+		Name:        input.Name,
+		Ingredients: ingredients,
+	}
 
 	if err := s.recipeRepository.Create(ctx, &recipe); err != nil {
 		return err
@@ -101,17 +118,17 @@ func (s *recipeService) Delete(ctx context.Context, id string) error {
 	return s.recipeRepository.Delete(ctx, id)
 }
 
-func (s *recipeService) Update(ctx context.Context, recipe domain.Recipe) error {
-	existingRecipe, err := s.recipeRepository.GetByID(ctx, recipe.ID)
+func (s *recipeService) Update(ctx context.Context, input UpdateRecipeInput) error {
+	existingRecipe, err := s.recipeRepository.GetByID(ctx, input.ID)
 
 	if err != nil {
 		return err
 	}
 
-	if recipe.Name != "" {
-		recipe.Name = strings.TrimSpace(recipe.Name)
+	if input.Name != nil {
+		name := strings.TrimSpace(*input.Name)
 
-		if recipe.Name == "" {
+		if name == "" {
 			return ErrInvalidRecipeName
 		}
 
@@ -122,36 +139,38 @@ func (s *recipeService) Update(ctx context.Context, recipe domain.Recipe) error 
 		}
 
 		for _, existing := range recipes {
-			if existing.ID != recipe.ID && existing.Name == recipe.Name {
+			if existing.ID != input.ID && existing.Name == name {
 				return ErrDuplicateRecipe
 			}
 		}
 
-		existingRecipe.Name = recipe.Name
+		existingRecipe.Name = name
 	}
 
-	if recipe.Ingredients != nil {
-		if len(recipe.Ingredients) == 0 {
+	if input.IngredientIDs != nil {
+		if len(*input.IngredientIDs) == 0 {
 			return ErrRecipeWithoutIngredients
 		}
 
-		ingredients := make(map[string]bool)
+		ingredients := []domain.Ingredient{}
+		ingredientIDs := make(map[string]bool)
 
-		for _, ingredient := range recipe.Ingredients {
-			if ingredients[ingredient.ID] {
+		for _, ingredientID := range *input.IngredientIDs {
+			if ingredientIDs[ingredientID] {
 				return ErrDuplicateRecipeIngredient
 			}
 
-			_, err := s.ingredientRepository.GetByID(ctx, ingredient.ID)
+			ingredient, err := s.ingredientRepository.GetByID(ctx, ingredientID)
 
 			if err != nil {
 				return err
 			}
 
-			ingredients[ingredient.ID] = true
+			ingredients = append(ingredients, ingredient)
+			ingredientIDs[ingredientID] = true
 		}
 
-		existingRecipe.Ingredients = recipe.Ingredients
+		existingRecipe.Ingredients = ingredients
 	}
 
 	return s.recipeRepository.Update(ctx, existingRecipe)
