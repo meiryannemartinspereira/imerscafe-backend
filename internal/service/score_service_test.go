@@ -62,3 +62,27 @@ func TestScoreService_ZeroPreparationScoreWhenIncorrect(t *testing.T) {
 		t.Fatalf("expected score 60, got %d", score.Total)
 	}
 }
+
+func TestScoreService_ZeroSoftSkillScoreWhenEvaluationIsZero(t *testing.T) {
+	customer := domain.Customer{
+		Type: domain.CustomerCalm,
+	}
+
+	preparation := domain.PreparationResult{
+		Correct: true,
+	}
+
+	evaluation := domain.SoftSkillEvaluation{}
+
+	scoreService := NewScoreService()
+
+	score := scoreService.Calculate(
+		customer,
+		preparation,
+		evaluation,
+	)
+
+	if score.Total != 45 {
+		t.Fatalf("expected score 45, got %d", score.Total)
+	}
+}
