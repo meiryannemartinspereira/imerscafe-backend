@@ -66,3 +66,45 @@ func TestRoundServiceCreateRound(t *testing.T) {
 		t.Errorf("expected score 69, got %d", round.Score.Total)
 	}
 }
+
+func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
+	scoreService := NewScoreService()
+	roundService := NewRoundService(scoreService)
+
+	customer := domain.Customer{
+		ID:   "customer-1",
+		Type: domain.CustomerCalm,
+	}
+
+	recipe := domain.Recipe{
+		ID:   "recipe-1",
+		Name: "Cappuccino",
+	}
+
+	preparation := domain.PreparationResult{
+		Correct: false,
+	}
+
+	evaluation := domain.SoftSkillEvaluation{
+		Communication: 8,
+		Empathy:       8,
+		Politeness:    8,
+		Clarity:       8,
+		Feedback:      "Bom atendimento",
+	}
+
+	round := roundService.CreateRound(
+		customer,
+		recipe,
+		preparation,
+		evaluation,
+	)
+
+	if round.PreparationResult.Correct {
+		t.Error("expected preparation to be incorrect")
+	}
+
+	if round.Score.Total != 29 {
+		t.Errorf("expected score 29, got %d", round.Score.Total)
+	}
+}
