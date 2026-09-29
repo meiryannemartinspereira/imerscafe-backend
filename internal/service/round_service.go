@@ -28,9 +28,12 @@ func (s *RoundService) CreateRound(
 		evaluation,
 	)
 
+	profile := domain.CustomerProfiles[customer.Type]
+
 	return domain.Round{
 		ID:                  uuid.NewString(),
 		Customer:            customer,
+		CustomerProfile:     profile,
 		Recipe:              recipe,
 		PreparationResult:   preparation,
 		SoftSkillEvaluation: evaluation,

@@ -46,6 +46,14 @@ func TestRoundServiceCreateRound(t *testing.T) {
 		t.Error("expected customer to be the same")
 	}
 
+	if round.CustomerProfile.Type != domain.CustomerCalm {
+		t.Errorf(
+			"expected customer profile type %s, got %s",
+			domain.CustomerCalm,
+			round.CustomerProfile.Type,
+		)
+	}
+
 	if round.Recipe.ID != recipe.ID {
 		t.Error("expected recipe ID to be the same")
 	}
@@ -66,7 +74,6 @@ func TestRoundServiceCreateRound(t *testing.T) {
 		t.Errorf("expected score 69, got %d", round.Score.Total)
 	}
 }
-
 func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
 	scoreService := NewScoreService()
 	roundService := NewRoundService(scoreService)
