@@ -1,13 +1,19 @@
 package service
 
 import (
+	"imerscafe-backend/internal/ai"
 	"imerscafe-backend/internal/domain"
 	"testing"
 )
 
 func TestRoundServiceCreateRound(t *testing.T) {
 	scoreService := NewScoreService()
-	roundService := NewRoundService(scoreService)
+	aiService := &ai.MockAIService{}
+
+	roundService := NewRoundService(
+		scoreService,
+		aiService,
+	)
 
 	customer := domain.Customer{
 		ID:   "customer-1",
@@ -31,7 +37,7 @@ func TestRoundServiceCreateRound(t *testing.T) {
 		Feedback:      "Bom atendimento",
 	}
 
-	round := roundService.CreateRound(
+	round, aiResponse := roundService.CreateRound(
 		customer,
 		recipe,
 		preparation,
@@ -73,10 +79,20 @@ func TestRoundServiceCreateRound(t *testing.T) {
 	if round.Score.Total != 69 {
 		t.Errorf("expected score 69, got %d", round.Score.Total)
 	}
+
+	if aiResponse.Message == "" {
+		t.Error("expected AI response message")
+	}
 }
+
 func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
 	scoreService := NewScoreService()
-	roundService := NewRoundService(scoreService)
+	aiService := &ai.MockAIService{}
+
+	roundService := NewRoundService(
+		scoreService,
+		aiService,
+	)
 
 	customer := domain.Customer{
 		ID:   "customer-1",
@@ -100,7 +116,7 @@ func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
 		Feedback:      "Bom atendimento",
 	}
 
-	round := roundService.CreateRound(
+	round, _ := roundService.CreateRound(
 		customer,
 		recipe,
 		preparation,

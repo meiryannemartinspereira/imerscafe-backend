@@ -1,6 +1,7 @@
 package service
 
 import (
+	"imerscafe-backend/internal/ai"
 	"imerscafe-backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -8,11 +9,13 @@ import (
 
 type RoundService struct {
 	scoreService *ScoreService
+	aiService    ai.AIService
 }
 
-func NewRoundService(scoreService *ScoreService) *RoundService {
+func NewRoundService(scoreService *ScoreService, aiService ai.AIService) *RoundService {
 	return &RoundService{
 		scoreService: scoreService,
+		aiService:    aiService,
 	}
 }
 
@@ -21,16 +24,25 @@ func (s *RoundService) CreateRound(
 	recipe domain.Recipe,
 	preparation domain.PreparationResult,
 	evaluation domain.SoftSkillEvaluation,
-) domain.Round {
+) (domain.Round, ai.AIResponse) {
+
+	profile := domain.CustomerProfiles[customer.Type]
+
+	request := ai.AIRequest{
+		CustomerType: string(profile.Type),
+		Behavior:     profile.Behavior,
+		RecipeName:   recipe.Name,
+	}
+
+	response := s.aiService.SimulateCustomer(request)
+
 	score := s.scoreService.Calculate(
 		customer,
 		preparation,
 		evaluation,
 	)
 
-	profile := domain.CustomerProfiles[customer.Type]
-
-	return domain.Round{
+	round := domain.Round{
 		ID:                  uuid.NewString(),
 		Customer:            customer,
 		CustomerProfile:     profile,
@@ -39,4 +51,6 @@ func (s *RoundService) CreateRound(
 		SoftSkillEvaluation: evaluation,
 		Score:               score,
 	}
+
+	return round, response
 }
