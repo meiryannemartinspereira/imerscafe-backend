@@ -1,33 +1,15 @@
 package service
 
 import (
-	"imerscafe-backend/internal/ai"
 	"imerscafe-backend/internal/domain"
 	"testing"
 )
-
-type FakeAIService struct {
-	LastRequest ai.AIRequest
-}
-
-func (f *FakeAIService) SimulateCustomer(
-	request ai.AIRequest,
-) ai.AIResponse {
-	f.LastRequest = request
-
-	return ai.AIResponse{
-		Message: "Olá! Gostaria de um café, por favor.",
-	}
-}
 
 func TestRoundServiceCreateRound(t *testing.T) {
 	scoreService := NewScoreService()
 	fakeAI := &FakeAIService{}
 
-	roundService := NewRoundService(
-		scoreService,
-		fakeAI,
-	)
+	roundService := NewRoundService(scoreService, fakeAI)
 
 	customer := domain.Customer{
 		ID:   "customer-1",
@@ -96,39 +78,34 @@ func TestRoundServiceCreateRound(t *testing.T) {
 	}
 
 	if round.Customer.Type != domain.CustomerCalm {
-		t.Errorf(
-			"expected customer type %s, got %s",
+		t.Errorf("expected customer type %s, got %s",
 			domain.CustomerCalm,
 			round.Customer.Type,
 		)
 	}
 
 	if round.Recipe.Name != "Cappuccino" {
-		t.Errorf(
-			"expected recipe Cappuccino, got %s",
+		t.Errorf("expected recipe Cappuccino, got %s",
 			round.Recipe.Name,
 		)
 	}
 
 	if fakeAI.LastRequest.CustomerType != string(customer.Type) {
-		t.Errorf(
-			"expected AI customer type %s, got %s",
+		t.Errorf("expected customer type %s, got %s",
 			customer.Type,
 			fakeAI.LastRequest.CustomerType,
 		)
 	}
 
 	if fakeAI.LastRequest.Behavior != round.CustomerProfile.Behavior {
-		t.Errorf(
-			"expected AI behavior %s, got %s",
+		t.Errorf("expected behavior %s, got %s",
 			round.CustomerProfile.Behavior,
 			fakeAI.LastRequest.Behavior,
 		)
 	}
 
 	if fakeAI.LastRequest.RecipeName != recipe.Name {
-		t.Errorf(
-			"expected AI recipe %s, got %s",
+		t.Errorf("expected recipe %s, got %s",
 			recipe.Name,
 			fakeAI.LastRequest.RecipeName,
 		)
@@ -139,8 +116,7 @@ func TestRoundServiceCreateRound(t *testing.T) {
 	}
 
 	if round.Score.Total != 69 {
-		t.Errorf(
-			"expected score 69, got %d",
+		t.Errorf("expected score 69, got %d",
 			round.Score.Total,
 		)
 	}
@@ -150,10 +126,7 @@ func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
 	scoreService := NewScoreService()
 	fakeAI := &FakeAIService{}
 
-	roundService := NewRoundService(
-		scoreService,
-		fakeAI,
-	)
+	roundService := NewRoundService(scoreService, fakeAI)
 
 	customer := domain.Customer{
 		ID:   "customer-1",
@@ -187,7 +160,6 @@ func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
 	t.Log("========== INCORRECT PREPARATION ==========")
 	t.Logf("Customer: %s", round.Customer.Type)
 	t.Logf("Recipe: %s", round.Recipe.Name)
-	t.Logf("AI Request: %+v", fakeAI.LastRequest)
 	t.Logf("AI Response: %s", aiResponse.Message)
 	t.Logf("Preparation Correct: %t", round.PreparationResult.Correct)
 	t.Logf("Score: %d", round.Score.Total)
@@ -198,8 +170,7 @@ func TestRoundServiceCreateRoundWithIncorrectPreparation(t *testing.T) {
 	}
 
 	if round.Score.Total != 29 {
-		t.Errorf(
-			"expected score 29, got %d",
+		t.Errorf("expected score 29, got %d",
 			round.Score.Total,
 		)
 	}
